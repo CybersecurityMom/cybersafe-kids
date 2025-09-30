@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSafe Kids - AQ's Corner LLC</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'aq-blue': '#3ABAEB',
+                        'aq-pink': '#E967B8',
+                        'aq-black': '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Simple icon components
+        const Shield = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+        );
+
+        const Lock = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+        );
+
+        const Mail = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+            </svg>
+        );
+
+        const Eye = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        );
+
+        const EyeOff = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+        );
+
+        const Wifi = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                <line x1="12" y1="20" x2="12.01" y2="20"/>
+            </svg>
+        );
+
+        const AlertTriangle = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        );
+
+        const CheckCircle = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+        );
+
+        const Star = ({ size = 24, className = "" }) => (
+            <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+        );
+
+        function CyberSafeKids() {
+          const [currentLesson, setCurrentLesson] = useState('home');
+          const [score, setScore] = useState(0);
+          const [quizAnswers, setQuizAnswers] = useState({});
+
+          const lessons = [
+            {
+              id: 'passwords',
+              title: 'Strong Passwords',
+              icon: Lock,
+              color: 'bg-aq-blue',
+              description: 'Learn how to create super strong passwords!',
+              content: (
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold text-aq-blue">Creating Strong Passwords 🔐</h3>
+                  <div className="bg-blue-50 p-4 rounded-lg border-2 border-aq-blue">
+                    <h4 className="font-bold text-lg mb-2">A strong password should have:</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="text-aq-pink mt-1 flex-shrink-0" size={20} />
+                        <span><strong>At least 12 characters</strong> - The longer, the better!</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="text-aq-pink mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Mix of letters</strong> - Both UPPERCASE and lowercase</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="text-aq-pink mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Numbers and symbols</strong> - Like 1, 2, 3, !, @, #</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="text-aq-pink mt-1 flex-shrink-0" size={20} />
+                        <span><strong>No personal info</strong> - Don't use your name or birthday!</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-lg">
+                    <h4 className="font-bold text-lg mb-2 flex items-center gap-2">
+                      <AlertTriangle className="text-yellow-600" size={24} />
+                      Bad Password Examples
+                    </h4>
+                    <ul className="space-y-1 text-red-600">
+                      <li>❌ password123</li>
+                      <li>❌ myname2015</li>
+                      <li>❌ 12345678</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-pink-50 border-2 border-aq-pink p-4 rounded-lg">
+                    <h4 className="font-bold text-lg mb-2 flex items-center gap-2">
+                      <CheckCircle className="text-aq-pink" size={24} />
+                      Good Password Examples
+                    </h4>
+                    <ul className="space-y-1 text-aq-black">
+                      <li>✅ P!zza&Ice7Cream#</li>
+                      <li>✅ Tr3eH0use$Fun!</li>
+                      <li>✅ R0bot*Danc3r@2024</li>
+                    </ul>
+                  </div>
+                </div>
+              ),
+              quiz: {
+                question: 'Which password is the strongest?',
+                options: [
+                  { text: 'fluffy123', correct: false, feedback: 'Too simple! It needs more variety.' },
+                  { text: 'M!xed$Up7Puzzl3', correct: true, feedback: 'Perfect! It has uppercase, lowercase, numbers, and symbols!' },
+                  { text: 'mybirthday', correct: false, feedback: 'Never use personal information!' },
+                  { text: 'password', correct: false, feedback: 'This is the worst password ever!' }
+                ]
+              }
+            },
+            {
+              id: 'phishing',
+              title: 'Spot Fake Emails',
+              icon: Mail,
+              color: 'bg-aq-pink',
+              description: 'Learn to identify tricky phishing emails!',
+              content: (
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold text-aq-pink">Spotting Phishing Emails 🎣</h3>
+                  <div className="bg-pink-50 p-4 rounded-lg border-2 border-aq-pink">
+                    <p className="mb-4">Phishing is when bad people try to trick you with fake emails! They want to steal your information.</p>
+                    <h4 className="font-bold text-lg mb-2">Warning Signs 🚨</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Weird sender email</strong> - Like "support@amaz0n.scam" instead of "amazon.com"</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Urgent threats</strong> - "Your account will be deleted in 1 hour!"</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Asks for passwords</strong> - Real companies NEVER ask for your password!</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Spelling mistakes</strong> - "Dear custmer" or "urgnet action"</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-red-100 border-2 border-red-400 p-4 rounded-lg">
+                    <h4 className="font-bold text-lg mb-2">Example Phishing Email:</h4>
+                    <div className="bg-white p-3 rounded">
+                      <p className="text-sm"><strong>From:</strong> security@paypa1.scam</p>
+                      <p className="text-sm mb-2"><strong>Subject:</strong> URGENT! Account Suspended!!!</p>
+                      <p className="text-sm">Dear valued custmer, your account will be deleted in 1 hour! Click here and enter your password NOW!</p>
+                    </div>
+                    <p className="mt-2 text-red-600 font-bold">🚨 This is FAKE! Never click suspicious links!</p>
+                  </div>
+                </div>
+              ),
+              quiz: {
+                question: 'Which email is probably a phishing scam?',
+                options: [
+                  { text: 'Email from your teacher about homework', correct: false, feedback: 'This sounds legitimate!' },
+                  { text: 'Email saying "You won $1 MILLION! Click NOW!"', correct: true, feedback: 'Correct! This is a classic phishing scam!' },
+                  { text: 'Email from a friend about playing games', correct: false, feedback: 'This is probably safe!' },
+                  { text: 'Newsletter from your favorite game', correct: false, feedback: 'This is normal!' }
+                ]
+              }
+            },
+            {
+              id: 'privacy',
+              title: 'Online Privacy',
+              icon: Eye,
+              color: 'bg-aq-blue',
+              description: 'Keep your personal information safe!',
+              content: (
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold text-aq-blue">Protecting Your Privacy 👀</h3>
+                  <div className="bg-blue-50 p-4 rounded-lg border-2 border-aq-blue">
+                    <h4 className="font-bold text-lg mb-2">Information to NEVER share online:</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <EyeOff className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Full name</strong> - Use a username instead!</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <EyeOff className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Home address</strong> - Keep your location private!</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <EyeOff className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Phone number</strong> - Only share with trusted adults!</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <EyeOff className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>School name</strong> - Don't tell strangers where you go!</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <EyeOff className="text-red-500 mt-1 flex-shrink-0" size={20} />
+                        <span><strong>Photos of your house</strong> - Keep your home private!</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-pink-50 p-4 rounded-lg border-2 border-aq-pink">
+                    <h4 className="font-bold text-lg mb-2 text-aq-pink">Smart Privacy Tips:</h4>
+                    <ul className="space-y-2">
+                      <li>✅ Use privacy settings on apps and games</li>
+                      <li>✅ Only accept friend requests from people you know in real life</li>
+                      <li>✅ Ask a parent before sharing anything online</li>
+                      <li>✅ Think: "Would I be okay if everyone saw this?"</li>
+                    </ul>
+                  </div>
+                </div>
+              ),
+              quiz: {
+                question: 'What is safe to share in an online game chat?',
+                options: [
+                  { text: 'Your home address', correct: false, feedback: 'Never share your address online!' },
+                  { text: 'Your phone number', correct: false, feedback: 'Keep your phone number private!' },
+                  { text: 'Your gaming username', correct: true, feedback: 'Yes! Usernames are safe to share!' },
+                  { text: 'Your school name', correct: false, feedback: 'Don\'t share which school you attend!' }
+                ]
+              }
+            },
+            {
+              id: 'wifi',
+              title: 'Safe WiFi Use',
+              icon: Wifi,
+              color: 'bg-aq-pink',
+              description: 'Learn about secure internet connections!',
+              content: (
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold text-aq-pink">WiFi Safety 📶</h3>
+                  <div className="bg-pink-50 p-4 rounded-lg border-2 border-aq-pink">
+                    <h4 className="font-bold text-lg mb-2">Understanding WiFi Safety:</h4>
+                    <p className="mb-4">Not all WiFi networks are safe! Some can let bad people see what you're doing online.</p>
+                    
+                    <div className="space-y-3">
+                      <div className="bg-green-100 p-3 rounded border-2 border-green-400">
+                        <h5 className="font-bold text-green-700 mb-1">✅ Safe WiFi:</h5>
+                        <ul className="text-sm space-y-1">
+                          <li>• Your home WiFi with a password</li>
+                          <li>• WiFi at a trusted friend's house</li>
+                          <li>• School WiFi</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-red-100 p-3 rounded border-2 border-red-400">
+                        <h5 className="font-bold text-red-700 mb-1">⚠️ Risky WiFi:</h5>
+                        <ul className="text-sm space-y-1">
+                          <li>• Free public WiFi at cafes or airports</li>
+                          <li>• WiFi without passwords (open networks)</li>
+                          <li>• Unknown networks</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-lg">
+                    <h4 className="font-bold text-lg mb-2">Rules for Public WiFi:</h4>
+                    <ul className="space-y-2">
+                      <li>❌ Don't log into important accounts (email, banking)</li>
+                      <li>❌ Don't enter passwords</li>
+                      <li>✅ Only browse websites, don't log in</li>
+                      <li>✅ Ask a parent if it's safe to connect</li>
+                    </ul>
+                  </div>
+                </div>
+              ),
+              quiz: {
+                question: 'Which WiFi network is safest to use?',
+                options: [
+                  { text: 'Free Mall WiFi (no password)', correct: false, feedback: 'Public WiFi without passwords can be risky!' },
+                  { text: 'Your home WiFi with a password', correct: true, feedback: 'Perfect! Home WiFi is the safest option!' },
+                  { text: 'Unknown WiFi network called "Free Internet"', correct: false, feedback: 'Never trust unknown networks!' },
+                  { text: 'Coffee shop WiFi (no password needed)', correct: false, feedback: 'Public open networks aren\'t secure!' }
+                ]
+              }
+            }
+          ];
+
+          const handleLessonSelect = (lessonId) => {
+            setCurrentLesson(lessonId);
+            setQuizAnswers({});
+          };
+
+          const handleQuizAnswer = (lessonId, optionIndex) => {
+            const lesson = lessons.find(l => l.id === lessonId);
+            const isCorrect = lesson.quiz.options[optionIndex].correct;
+            
+            if (isCorrect && !quizAnswers[lessonId]) {
+              setScore(score + 10);
+            }
+            
+            setQuizAnswers({
+              ...quizAnswers,
+              [lessonId]: {
+                selected: optionIndex,
+                correct: isCorrect
+              }
+            });
+          };
+
+          const renderHome = () => (
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-aq-blue to-aq-pink p-6 rounded-2xl mb-4 shadow-lg border-4 border-aq-black">
+                  <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">AQ's Corner LLC</h1>
+                  <p className="text-lg md:text-xl text-white italic mb-4">Where Motherhood meets Cybersecurity</p>
+                  <div className="inline-block bg-white p-3 rounded-full border-2 border-aq-black">
+                    <Shield className="text-aq-blue" size={56} />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-bold text-aq-black mb-2">CyberSafe Kids! 🛡️</h2>
+                <p className="text-xl text-gray-700">Become a cybersecurity superhero!</p>
+              </div>
+
+              <div className="bg-gradient-to-r from-aq-pink to-aq-blue p-4 rounded-lg text-center border-4 border-aq-black">
+                <div className="flex items-center justify-center gap-2 text-white text-2xl font-bold">
+                  <Star className="text-white" size={32} />
+                  <span>Your Score: {score} points</span>
+                  <Star className="text-white" size={32} />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {lessons.map((lesson) => {
+                  const Icon = lesson.icon;
+                  const completed = quizAnswers[lesson.id]?.correct;
+                  return (
+                    <button
+                      key={lesson.id}
+                      onClick={() => handleLessonSelect(lesson.id)}
+                      className={`${lesson.color} text-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-left relative border-4 border-aq-black`}
+                    >
+                      {completed && (
+                        <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 border-2 border-aq-black">
+                          <CheckCircle size={24} />
+                        </div>
+                      )}
+                      <Icon size={48} className="mb-3" />
+                      <h3 className="text-2xl font-bold mb-2">{lesson.title}</h3>
+                      <p className="text-white opacity-90">{lesson.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+
+          const renderLesson = () => {
+            const lesson = lessons.find(l => l.id === currentLesson);
+            if (!lesson) return null;
+
+            const userAnswer = quizAnswers[lesson.id];
+
+            return (
+              <div className="space-y-6">
+                <button
+                  onClick={() => setCurrentLesson('home')}
+                  className="bg-aq-blue hover:bg-aq-pink text-white px-4 py-2 rounded-lg font-semibold border-2 border-aq-black transition-colors"
+                >
+                  ← Back to Lessons
+                </button>
+
+                {lesson.content}
+
+                <div className="bg-white border-4 border-aq-black p-6 rounded-lg">
+                  <h3 className="text-2xl font-bold text-aq-pink mb-4">🧠 Quiz Time!</h3>
+                  <p className="text-lg font-semibold mb-4">{lesson.quiz.question}</p>
+                  
+                  <div className="space-y-3">
+                    {lesson.quiz.options.map((option, index) => {
+                      const isSelected = userAnswer?.selected === index;
+                      const showResult = userAnswer !== undefined;
+                      
+                      let buttonClass = "w-full text-left p-4 rounded-lg border-2 transition-all ";
+                      if (!showResult) {
+                        buttonClass += "border-aq-black hover:border-aq-pink hover:bg-pink-50";
+                      } else if (isSelected) {
+                        buttonClass += option.correct 
+                          ? "border-aq-pink bg-pink-50" 
+                          : "border-red-500 bg-red-50";
+                      } else {
+                        buttonClass += "border-gray-200 bg-gray-50 opacity-50";
+                      }
+
+                      return (
+                        <div key={index}>
+                          <button
+                            onClick={() => !userAnswer && handleQuizAnswer(lesson.id, index)}
+                            disabled={userAnswer !== undefined}
+                            className={buttonClass}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{option.text}</span>
+                              {isSelected && showResult && (
+                                option.correct ? 
+                                  <CheckCircle className="text-aq-pink" size={24} /> :
+                                  <AlertTriangle className="text-red-600" size={24} />
+                              )}
+                            </div>
+                          </button>
+                          {isSelected && showResult && (
+                            <div className={`mt-2 p-3 rounded border-2 ${option.correct ? 'bg-pink-50 text-aq-black border-aq-pink' : 'bg-red-100 text-red-800 border-red-400'}`}>
+                              {option.feedback}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {userAnswer?.correct && (
+                    <div className="mt-4 bg-gradient-to-r from-aq-blue to-aq-pink border-4 border-aq-black p-4 rounded-lg text-center">
+                      <p className="text-xl font-bold text-white">🎉 Great job! You earned 10 points!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          };
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-pink-50 to-blue-100 p-4 md:p-8">
+              <div className="max-w-4xl mx-auto">
+                {currentLesson === 'home' ? renderHome() : renderLesson()}
+                
+                <footer className="mt-12 text-center text-aq-black text-sm">
+                  <p className="font-bold text-lg">© 2025 AQ's Corner LLC</p>
+                  <p className="italic text-base">Where Motherhood meets Cybersecurity</p>
+                </footer>
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<CyberSafeKids />);
+    </script>
+</body>
+</html>
