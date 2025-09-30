@@ -5,6 +5,9 @@
 
 **Where Motherhood meets Cybersecurity** 💙💗
 
+## 🌐 Try It Now!
+**[Launch CyberSafe Kids](https://cybersecuritymom.github.io/cybersafe-kids/cybersafe-kids.html)**
+
 An interactive, kid-friendly web application that teaches children essential cybersecurity concepts through fun lessons and quizzes!
 
 ## 🌟 Features
